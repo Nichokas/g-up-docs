@@ -4,8 +4,7 @@
 
 <instance-profile id="uc"
                  name="User Configuration"
-                 start-page="starter-topic.md">
+                 start-page="Client-ID-and-CLIENT-SECRET.md">
 
     <toc-element topic="Client-ID-and-CLIENT-SECRET.md"/>
-    <toc-element topic="starter-topic.md"/>
 </instance-profile>

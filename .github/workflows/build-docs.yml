@@ -38,7 +38,7 @@ jobs:
           instance: ${{ env.INSTANCE }}
 
       - name: Unzip artifact
-        run: unzip -O UTF-8 -qq '${{ env.ARTIFACT }}' -d dir
+        run: unzip -O UTF-8 -qq /home/runner/work/g-up-docs.github.io/g-up-docs.github.io/artifacts/webHelpUC2-all.zip -d dir
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

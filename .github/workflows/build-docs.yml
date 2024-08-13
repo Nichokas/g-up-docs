@@ -11,34 +11,61 @@ permissions:
 
 env:
   INSTANCE: 'Writerside/uc'
-  ARTIFACT: 'webHelpUC2-all.zip'
+  ARTIFACT: 'webHelpHI2-all.zip'
   DOCKER_VERSION: '241.18775'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Build docs using Writerside Docker builder
         uses: JetBrains/writerside-github-action@v4
         with:
           instance: ${{ env.INSTANCE }}
           artifact: ${{ env.ARTIFACT }}
           docker-version: ${{ env.DOCKER_VERSION }}
-          
+
+      - name: Save artifact with build results
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: |
+            artifacts/${{ env.ARTIFACT }}
+            artifacts/report.json
+          retention-days: 7
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: docs
+          path: artifacts
+
       - name: Test documentation
         uses: JetBrains/writerside-checker-action@v1
         with:
           instance: ${{ env.INSTANCE }}
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: docs
 
       - name: Unzip artifact
-        run: unzip -O UTF-8 -qq /home/runner/work/g-up-docs.github.io/g-up-docs.github.io/artifacts/webHelpUC2-all.zip -d dir
+        run: unzip -O UTF-8 -qq '${{ env.ARTIFACT }}' -d dir
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
